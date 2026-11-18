@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>2026年健康活動介紹</title>
+<style>
+  :root{
+    --bg1:#f7f6f2;
+    --bg2:#f3f6f9;
+    --text:#26323a;
+    --sub:#5d6b75;
+    --accent:#b88655;
+    --card:#ffffff;
+    --border:#e6e3dc;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{
+    font-family:"Noto Sans TC","Microsoft JhengHei","PingFang TC",sans-serif;
+    color:var(--text);
+    line-height:1.6;
+  }
+  section{padding:60px 0}
+  #activities{background:var(--bg1)}
+  #benefits{background:var(--bg2)}
+  .container{max-width:1160px;margin:0 auto;padding:0 40px}
+  .section-head{
+    display:flex;justify-content:space-between;align-items:flex-end;
+    margin-bottom:24px;flex-wrap:wrap;gap:8px;
+  }
+  .section-head h2{font-size:28px}
+  .section-head p{font-size:14px;color:var(--sub);margin-top:4px}
+  .section-head .tag{font-size:12px;letter-spacing:.05em}
+  .grid{
+    display:grid;gap:16px;
+    grid-template-columns:repeat(3,1fr);
+  }
+  .card{
+    background:var(--card);
+    border:1px solid var(--border);
+    border-radius:22px;
+    padding:24px;
+    cursor:pointer;
+    text-align:left;
+    font:inherit;color:inherit;
+    box-shadow:0 2px 8px rgba(0,0,0,.03);
+    transition:transform .2s,box-shadow .2s,border-color .2s;
+  }
+  .card:hover,.card:focus-visible{
+    transform:translateY(-4px);
+    box-shadow:0 10px 24px rgba(0,0,0,.09);
+    border-color:var(--accent);
+    outline:none;
+  }
+  .card .month{font-size:12px;font-weight:700;color:var(--accent);margin-bottom:14px}
+  .card h3{font-size:18px;margin-bottom:10px}
+  .card p{font-size:13px;color:var(--sub)}
+  .card .more{display:inline-block;margin-top:12px;font-size:12px;color:var(--accent)}
+  .benefit-icon{font-size:26px;margin-bottom:14px}
+
+  /* 彈出視窗 */
+  .modal{
+    position:fixed;inset:0;background:rgba(20,28,34,.6);
+    display:none;align-items:center;justify-content:center;
+    padding:20px;z-index:100;
+  }
+  .modal.open{display:flex;animation:fade .2s}
+  @keyframes fade{from{opacity:0}to{opacity:1}}
+  .modal-box{
+    background:#fff;border-radius:22px;max-width:760px;width:100%;
+    max-height:92vh;overflow-y:auto;position:relative;
+  }
+  .close{
+    position:absolute;top:12px;right:14px;width:36px;height:36px;
+    border:none;border-radius:50%;background:rgba(255,255,255,.9);
+    font-size:20px;cursor:pointer;z-index:2;
+  }
+  .slider{position:relative;background:#e9ecef;aspect-ratio:16/9;border-radius:22px 22px 0 0;overflow:hidden}
+  .slider img{width:100%;height:100%;object-fit:cover;display:block}
+  .nav{
+    position:absolute;top:50%;transform:translateY(-50%);
+    width:40px;height:40px;border:none;border-radius:50%;
+    background:rgba(255,255,255,.85);font-size:18px;cursor:pointer;
+  }
+  .nav.prev{left:12px}.nav.next{right:12px}
+  .counter{
+    position:absolute;bottom:10px;right:14px;background:rgba(0,0,0,.55);
+    color:#fff;font-size:12px;padding:2px 10px;border-radius:12px;
+  }
+  .modal-body{padding:24px 28px 30px}
+  .modal-body .month{font-size:13px;font-weight:700;color:var(--accent)}
+  .modal-body h3{font-size:24px;margin:6px 0 12px}
+  .modal-body p{font-size:15px;color:var(--sub);margin-bottom:12px}
+  .modal-body ul{padding-left:20px;font-size:15px;color:var(--sub)}
+  .modal-body li{margin-bottom:4px}
+
+  @media(max-width:900px){.grid{grid-template-columns:repeat(2,1fr)}}
+  @media(max-width:600px){
+    .grid{grid-template-columns:1fr}
+    .container{padding:0 20px}
+    section{padding:40px 0}
+  }
+</style>
+</head>
+<body>
+
+<section id="activities">
+  <div class="container">
+    <div class="section-head">
+      <div>
+        <h2>2026年活動</h2>
+        <p>一起參加，讓日常多一點樂趣</p>
+      </div>
+      <span class="tag">UPCOMING</span>
+    </div>
+    <div class="grid" id="activityGrid"></div>
+  </div>
+</section>
+
+<section id="benefits">
+  <div class="container">
+    <div class="section-head">
+      <div>
+        <h2>嘉人健康吧</h2>
+        <p>健康促進活動讓我們一起動起來!</p>
+      </div>
+      <span class="tag">BENEFITS</span>
+    </div>
+    <div class="grid" id="benefitGrid"></div>
+  </div>
+</section>
+
+<!-- 彈出視窗 -->
+<div class="modal" id="modal" role="dialog" aria-modal="true" aria-labelledby="mTitle">
+  <div class="modal-box">
+    <button class="close" id="closeBtn" aria-label="關閉">✕</button>
+    <div class="slider">
+      <img id="mImg" src="" alt="">
+      <button class="nav prev" id="prevBtn" aria-label="上一張">❮</button>
+      <button class="nav next" id="nextBtn" aria-label="下一張">❯</button>
+      <span class="counter" id="counter"></span>
+    </div>
+    <div class="modal-body">
+      <div class="month" id="mMonth"></div>
+      <h3 id="mTitle"></h3>
+      <div id="mDesc"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ========= 資料區：請在此修改文字與照片 ========= */
+const activities = [
+  {
+    icon:"🏃", title:"健康活力", month:"1-9月",
+    brief:"鼓勵大家持續運動，利用團體競賽讓我們一起健康吧!",
+    desc:["透過團體競賽的方式，鼓勵同仁養成規律運動的習慣，並在互相打氣的過程中增進同事情誼。"],
+    points:["活動期間：1月至9月","形式：組隊競賽、累積運動量","歡迎各部門同仁組隊參加"],
+    photos:[
+      "https://images.unsplash.com/photo-1476480862126-209bfaa8edc8?w=1200",
+      "https://images.unsplash.com/photo-1517836357463-d25dfeac3438?w=1200",
+      "https://images.unsplash.com/photo-1552674605-db6ffd4facb5?w=1200"
+    ]
+  },
+  {
+    icon:"🎉", title:"節慶主題", month:"6月、9月",
+    brief:"節日限定活動：端午九宮格、中秋感謝小卡，你參加了嗎?",
+    desc:["結合傳統節慶，推出限定主題活動，讓同仁在節日裡感受公司的關懷與同事間的祝福。"],
+    points:["6月：端午九宮格","9月：中秋感謝小卡","完成活動可參加抽獎或領取小禮"],
+    photos:[
+      "https://images.unsplash.com/photo-1509958302033-a0f1a5a5c3c8?w=1200",
+      "https://images.unsplash.com/photo-1519671482749-fd09be7ccebf?w=1200"
+    ]
+  },
+  {
+    icon:"🎉", title:"嘉人公益", month:"3月、4月、5月",
+    brief:"植樹一起來、嘉人齊步公益健走、公益愛地球、心路志工",
+    desc:["號召同仁一起走出辦公室，用實際行動回饋社會，同時兼顧身體健康與環境永續。"],
+    points:["植樹一起來","嘉人齊步公益健走","公益愛地球","心路志工"],
+    photos:[
+      "https://images.unsplash.com/photo-1542601906990-b4d3fb778b09?w=1200",
+      "https://images.unsplash.com/photo-1559027615-cd4628902d4a?w=1200",
+      "https://images.unsplash.com/photo-1488521787991-ed7bbaae773c?w=1200"
+    ]
+  },
+  {
+    icon:"🎉", title:"員工旅遊", month:"4月、5月、7月、9月、10月",
+    brief:"大板根、威斯汀、大阪",
+    desc:["透過員工旅遊讓大家暫時放下工作，放鬆身心，並增進跨部門交流。"],
+    points:["國內：大板根、威斯汀","國外：大阪","實際梯次與日期以公司公告為準"],
+    photos:[
+      "https://images.unsplash.com/photo-1590559899731-a382839e5549?w=1200",
+      "https://images.unsplash.com/photo-1493976040374-85c8e12f0c0e?w=1200"
+    ]
+  },
+  {
+    icon:"🤝", title:"紓壓手作", month:"5月、10月、12月",
+    brief:"透過有趣的手作活動認識不同部門夥伴，一起享受手作時光放鬆身心。",
+    desc:["利用手作課程，讓同仁在專注創作的過程中紓解壓力，也認識不同部門的夥伴。"],
+    points:["活動期間：5月、10月、12月","不需任何手作基礎","作品可帶回留念"],
+    photos:[
+      "https://images.unsplash.com/photo-1452860606245-08befc0ff44b?w=1200",
+      "https://images.unsplash.com/photo-1513364776144-60967b0f800f?w=1200"
+    ]
+  }
+];
+
+const benefits = [
+  {
+    icon:"🎁", title:"運動補助", month:"員工福利",
+    brief:"參與組隊申請每季1000元運動補助。",
+    desc:["同仁自行組隊並提出申請，即可獲得每季1000元的運動補助，鼓勵大家持續運動。"],
+    points:["每季補助1000元","需組隊申請","申請方式請洽人資單位"],
+    photos:["https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=1200"]
+  },
+  {
+    icon:"🌿", title:"Inbody", month:"員工福利",
+    brief:"利用數位儀器協助了解身體情況。",
+    desc:["透過 Inbody 身體組成分析儀，了解肌肉量、體脂肪等數據，作為調整運動與飲食的參考。"],
+    points:["快速且無痛的檢測","提供詳細的身體組成報告","可定期檢測追蹤變化"],
+    photos:["https://images.unsplash.com/photo-1576678927484-cc907957088c?w=1200"]
+  },
+  {
+    icon:"📚", title:"健康溫馨識", month:"員工福利",
+    brief:"提供與健康相關知識，一起照顧身心靈。",
+    desc:["定期分享與健康相關的實用資訊，涵蓋飲食、運動、睡眠與心理健康，協助同仁照顧身心。"],
+    points:["飲食營養","運動保健","睡眠與壓力管理"],
+    photos:["https://images.unsplash.com/photo-1505576399279-565b52d4ac71?w=1200"]
+  }
+];
+
+/* ========= 以下為程式邏輯，一般不需修改 ========= */
+function renderCards(list, gridId, type){
+  const grid = document.getElementById(gridId);
+  grid.innerHTML = list.map((it,i)=>`
+    <button class="card" data-type="${type}" data-index="${i}">
+      ${type==="a"
+        ? `<div class="month">活動月份：${it.month}</div><h3>${it.icon} ${it.title}</h3>`
+        : `<div class="benefit-icon">${it.icon}</div><h3>${it.title}</h3>`}
+      <p>${it.brief}</p>
+      <span class="more">點選查看詳情 →</span>
+    </button>`).join("");
+}
+renderCards(activities,"activityGrid","a");
+renderCards(benefits,"benefitGrid","b");
+
+const modal=document.getElementById("modal");
+const mImg=document.getElementById("mImg");
+let current=null, idx=0, lastFocus=null;
+
+function showPhoto(){
+  const p=current.photos;
+  mImg.src=p[idx];
+  mImg.alt=current.title+" 活動照片 "+(idx+1);
+  document.getElementById("counter").textContent=(idx+1)+" / "+p.length;
+  const multi=p.length>1;
+  document.getElementById("prevBtn").style.display=multi?"block":"none";
+  document.getElementById("nextBtn").style.display=multi?"block":"none";
+}
+function openModal(item){
+  lastFocus=document.activeElement;
+  current=item; idx=0;
+  document.getElementById("mTitle").textContent=item.icon+" "+item.title;
+  document.getElementById("mMonth").textContent=
+    item.month.includes("福利") ? item.month : "活動月份："+item.month;
+  document.getElementById("mDesc").innerHTML=
+    item.desc.map(t=>`<p>${t}</p>`).join("")+
+    `<ul>${item.points.map(t=>`<li>${t}</li>`).join("")}</ul>`;
+  showPhoto();
+  modal.classList.add("open");
+  document.body.style.overflow="hidden";
+  document.getElementById("closeBtn").focus();
+}
+function closeModal(){
+  modal.classList.remove("open");
+  document.body.style.overflow="";
+  if(lastFocus) lastFocus.focus();
+}
+function move(d){
+  idx=(idx+d+current.photos.length)%current.photos.length;
+  showPhoto();
+}
+
+document.addEventListener("click",e=>{
+  const card=e.target.closest(".card");
+  if(card){
+    const list=card.dataset.type==="a"?activities:benefits;
+    openModal(list[card.dataset.index]);
+  }
+});
+document.getElementById("closeBtn").onclick=closeModal;
+document.getElementById("prevBtn").onclick=()=>move(-1);
+document.getElementById("nextBtn").onclick=()=>move(1);
+modal.addEventListener("click",e=>{ if(e.target===modal) closeModal(); });
+document.addEventListener("keydown",e=>{
+  if(!modal.classList.contains("open")) return;
+  if(e.key==="Escape") closeModal();
+  if(e.key==="ArrowLeft") move(-1);
+  if(e.key==="ArrowRight") move(1);
+});
+mImg.onerror=function(){
+  this.src="data:image/svg+xml;charset=utf-8,"+encodeURIComponent(
+   '<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="675"><rect width="100%" height="100%" fill="#e9ecef"/><text x="50%" y="50%" font-size="36" fill="#8a949c" text-anchor="middle">照片載入失敗</text></svg>');
+};
+</script>
+</body>
+</html>
